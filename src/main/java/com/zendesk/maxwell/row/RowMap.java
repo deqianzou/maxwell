@@ -5,6 +5,8 @@ import com.zendesk.maxwell.producer.EncryptionMode;
 import com.zendesk.maxwell.replication.BinlogPosition;
 import com.zendesk.maxwell.producer.MaxwellOutputConfig;
 import com.zendesk.maxwell.replication.Position;
+import com.zendesk.maxwell.util.NanoTimeGenerator;
+
 import org.apache.commons.lang3.tuple.Pair;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -55,6 +57,8 @@ public class RowMap implements Serializable {
 
 	private long approximateSize;
 
+	private long nanoTimeStamp;
+
 	public RowMap(String type, String database, String table, Long timestampMillis, List<String> pkColumns,
 			Position position, Position nextPosition, String rowQuery) {
 		this.rowQuery = rowQuery;
@@ -71,6 +75,7 @@ public class RowMap implements Serializable {
 		this.pkColumns = pkColumns;
 		this.suppressed = false;
 		this.approximateSize = 100L; // more or less 100 bytes of overhead
+		this.nanoTimeStamp = NanoTimeGenerator.getNanoTimeStamp();
 	}
 
 	public RowMap(String type, String database, String table, Long timestampMillis, List<String> pkColumns,
