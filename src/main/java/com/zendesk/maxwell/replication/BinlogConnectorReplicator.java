@@ -26,7 +26,7 @@ import com.zendesk.maxwell.schema.Table;
 import com.zendesk.maxwell.schema.ddl.DDLMap;
 import com.zendesk.maxwell.schema.ddl.ResolvedSchemaChange;
 import com.zendesk.maxwell.scripting.Scripting;
-import com.zendesk.maxwell.util.RunLoopProcess;
+import com.zendesk.maxwell.util.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -480,11 +480,15 @@ public class BinlogConnectorReplicator extends RunLoopProcess implements Replica
 				case EXT_DELETE_ROWS:
 					Table table = tableCache.getTable(event.getTableID());
 
-					if ( table != null && shouldOutputEvent(table.getDatabase(), table.getName(), filter, table.getColumnNames()) ) {
-						for ( RowMap r : event.jsonMaps(table, getLastHeartbeatRead(), currentQuery) )
-							if (shouldOutputRowMap(table.getDatabase(), table.getName(), r, filter)) {
-								buffer.add(r);
+					if ( table != null ) {
+						for ( RowMap r : event.jsonMaps(table, getLastHeartbeatRead(), currentQuery) ) {
+							if (!shouldOutputRowMap(table.getDatabase(), table.getName(), r, filter) ||
+									!shouldOutputEvent(table.getDatabase(), table.getName(), filter, table.getColumnNames())) {
+								r.suppress();
 							}
+							r.setNanoTimeStamp(NanoTimeGenerator.getNanoTimeStamp());
+							buffer.add(r);
+						}
 					}
 					currentQuery = null;
 					break;

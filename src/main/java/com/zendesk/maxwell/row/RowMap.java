@@ -430,4 +430,12 @@ public class RowMap implements Serializable {
 	public void setComment(String comment) {
 		this.comment = comment;
 	}
+
+	public long getNanoTimeStamp() {
+		return nanoTimeStamp;
+	}
+
+	public void setNanoTimeStamp(long nanoTimeStamp) {
+		this.nanoTimeStamp = nanoTimeStamp;
+	}
 }
